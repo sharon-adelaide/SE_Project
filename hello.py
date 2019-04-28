@@ -1,12 +1,11 @@
 from flask import Flask , render_template, request, json
 from connectdb import connection
 import gviz_api
+import json
 
 
 app = Flask(__name__)
-@app.route('/')
-def home():
-    return render_template('charts.html')
+
 
 @app.route('/connected', methods = ['POST'])
 def insertIntoDB():
@@ -21,52 +20,28 @@ def insertIntoDB():
             value =(room, occupancy, airQuality)
             c.execute(sql, value)
             conn.commit()
-            
-
-            myresult = c.fetchall()
-            for x in myresult:
-                return str(x)
-            
-            
-            
-            
+            return 'Worked', 200
         except Exception as e:
             return (str(e))
 
-@app.route('/getData')
-def getFromDB():
-    try:
-        final = []
-        c, conn = connection()
-        sql = "SELECT * from RoomInformation"
-        c.execute(sql)
-        results = c.fetchall()
-        for result in results:
-           data = {
-               "LectureRoom" : result[0],
-               "Occupancy" : result[1],
-               "AirQualityLevel" : result[2]
-           } 
-           final.append(data)
-
-        description = {
-            "LectureRoom" : ("string", "LectureRoom"),
-            "Occupancy" : ("number", "Occupancy"),
-            "AirQualityLevel" : ("number", "AirQualityLevel")
-        }
-        data_table = gviz_api.DataTable(description)
-        data_table.LoadData(final)
-        json = data_table.ToJSon(columns_order=("Lecture Room","Occupancy","Air Quality Level"))
-
-        return json
-
-    except Exception as e:
-        return (str(e))
-   
-        
-   
 
 
+
+
+#This API makes a connection to the database and retrieves information about the lecture 
+@app.route("/")
+def getDataFromDb()():
+    final = []
+    c, conn = connection()
+    sql = "SELECT * from RoomInformation"
+    c.execute(sql)
+    results = c.fetchall()
+    for result in results:
+        data = [
+                result[0],result[1],result[2]
+        ] 
+        final.append(data)
+    return render_template('charts.html', rows=final)
 
 if __name__ == '__main__':
     app.run(debug=True)
