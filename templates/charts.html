@@ -6,6 +6,8 @@
     
       <title>Charts - Vali Admin</title>
       <meta charset="utf-8">
+      <meta http-equiv="refresh" content="15" >
+
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <!-- Main CSS-->
@@ -17,7 +19,7 @@
       <script src = "https://www.gstatic.com/charts/loader.js"></script> 
       <script type = "text/javascript">
       
-          google.charts.load('current', {packages: ['corechart']});     
+          google.charts.load('current', {packages: ['corechart', 'bar']});     
         </script>
     </head>
   <body class="app sidebar-mini rtl">
@@ -29,8 +31,8 @@
     </header>
     
     <main class="app-content">
-      <div class="row">
-        <div class="col-md-6">
+      
+        <div class="col">
           <div class="tile">
             <h3 class="tile-title">Line Chart</h3>
             <div id="container">
@@ -42,16 +44,34 @@
                 data.addColumn("number", "AirQualityLevel");
                 
                 var rows = {{rows | safe}};
-                console.log(rows)
                 data.addRows(rows)
                     
                 // // Set chart options
-                // console.log(jsonData);
-                var options = {'title':'Lecture room 217', 'width':450, 'height':350};
+                var options = {
+                  width: 1000, 
+                  height:500,
+                  chart : {
+                    title: 'Numerical Information about Ashesi Lecture Rooms',
+                    subtitle : 'Occupancy on the left, Air Quality Level on the right'
+                  },
+                  series: {
+                    0 : {axis :'Occupancy', color:'#FFFF00'}, //Bind series 0 to an axis named 'Occupancy'
+                    1 : {axis : 'AirQualityLevel', color:'#9C27B0', targetAxisIndex : 1}  //Bind series 1 to an axis named 'AirQualityLevel'
+                  },
+                  vAxes : {
+                    1 : {format : 'percent'}
+                  },
+                  axes : {
+                    y : {
+                      Occupancy : {label : 'Occupancy'}, //Left y-axis
+                      AirQualityLevel : {side : 'right', label : 'Air Quality Level'} //Right y-axis
+                    }
+                  }
+                  };
 
                 // Instantiate and draw the chart.
-                var chart = new google.visualization.BarChart(document.getElementById ('container'));
-                chart.draw(data, options);
+                var chart = new google.charts.Bar(document.getElementById ('container'));
+                chart.draw(data, google.charts.Bar.convertOptions(options));
                 }
                 google.charts.setOnLoadCallback(drawChart);
         </script>
@@ -61,85 +81,13 @@
             </div>
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="tile">
-            <h3 class="tile-title">Bar Chart</h3>
-            <div id="container2">
-            <script language = "JavaScript">
-                function drawChart() {
-                // Define the chart to be drawn.
-                var data = new google.visualization.DataTable();
-                data.addColumn('string', 'Browser');
-                data.addColumn('number', 'Percentage');
-                data.addRows([
-                    ['Firefox', 45.0],
-                    ['IE', 26.8],
-                    ['Chrome', 12.8],
-                    ['Safari', 8.5],
-                    ['Opera', 6.2],
-                    ['Others', 0.7]
-                ]);
-                    
-                // Set chart options
-                var options = {'title':'Browser market shares at a specific website, 2014', 'width':450, 'height':350};
-
-                // Instantiate and draw the chart.
-                var chart = new google.visualization.PieChart(document.getElementById ('container2'));
-                chart.draw(data, options);
-                }
-                google.charts.setOnLoadCallback(drawChart);
-        </script>
-        </div>
-            <div class="embed-responsive embed-responsive-16by9">
-              <canvas class="embed-responsive-item" id="barChartDemo"></canvas>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="tile">
-            <h3 class="tile-title">Line Chart</h3>
-            <div id="container3">
-            <script language = "JavaScript">
-                function drawChart() {
-                // Define the chart to be drawn.
-                var data = new google.visualization.DataTable();
-                data.addColumn('string', 'Browser');
-                data.addColumn('number', 'Percentage');
-                data.addRows([
-                    ['Firefox', 45.0],
-                    ['IE', 26.8],
-                    ['Chrome', 12.8],
-                    ['Safari', 8.5],
-                    ['Opera', 6.2],
-                    ['Others', 0.7]
-                ]);
-                    
-                // Set chart options
-                var options = {'title':'Browser market shares at a specific website, 2014', 'width':450, 'height':350};
-
-                // Instantiate and draw the chart.
-                var chart = new google.visualization.PieChart(document.getElementById ('container3'));
-                chart.draw(data, options);
-                }
-                google.charts.setOnLoadCallback(drawChart);
-        </script>
-        </div>
-            <div class="embed-responsive embed-responsive-16by9">
+        <div class="embed-responsive embed-responsive-16by9">
               <canvas class="embed-responsive-item" id="lineChartDemo"></canvas>
             </div>
-          </div>
+          
         </div>
       </div>
     </main>
-    <!-- Essential javascripts for application to work-->
-    <!-- <script src="js/jquery-3.2.1.min.js"></script>
-    <script src="js/popper.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/main.js"></script>
-    <!-- The javascript plugin to display page loading on top-->
-    <!-- <script src="js/plugins/pace.min.js"></script> -->
-    <!-- Page specific javascripts-->
-    <!-- <script type="text/javascript" src="js/plugins/chart.js"></script> --> -->
     
   </body>
 </html>

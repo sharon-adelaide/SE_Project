@@ -2,6 +2,7 @@ from flask import Flask , render_template, request, json
 from connectdb import connection
 import gviz_api
 import json
+import requests
 
 
 app = Flask(__name__)
@@ -9,6 +10,7 @@ app = Flask(__name__)
 
 @app.route('/connected', methods = ['POST'])
 def insertIntoDB():
+    url = 'http://127.0.0.1:5000'
     if request.method == 'POST':
         data = request.get_json()
         room = data.get("LectureRoom")
@@ -16,10 +18,11 @@ def insertIntoDB():
         airQuality = data.get("AirQualityLevel")
         try:
             c, conn = connection()
-            sql = "INSERT INTO RoomInformation (LectureRoom, Occupancy, AirQualityLevel) VALUES (%s, %s, %s)"
-            value =(room, occupancy, airQuality)
-            c.execute(sql, value)
+            sql = "UPDATE ROOMINFORMATION SET Occupancy = %s , AirQualityLevel = %s WHERE LectureRoom = %s"
+            value =(occupancy, airQuality, room)
+            c.execute(sql,value)
             conn.commit()
+            response = requests.post(url, data=data)
             return 'Worked', 200
         except Exception as e:
             return (str(e))
@@ -28,9 +31,10 @@ def insertIntoDB():
 
 
 
-#This API makes a connection to the database and retrieves information about the lecture 
-@app.route("/")
-def getDataFromDb()():
+#This API makes a connection to the database and retrieves information about the lecture
+# It sends this information to the html page where the charts are rendered 
+@app.route("/",methods = ['GET'])
+def getDataFromDb():
     final = []
     c, conn = connection()
     sql = "SELECT * from RoomInformation"
@@ -38,9 +42,10 @@ def getDataFromDb()():
     results = c.fetchall()
     for result in results:
         data = [
-                result[0],result[1],result[2]
-        ] 
+                result[0],result[1],float(result[2])
+        ]
         final.append(data)
+
     return render_template('charts.html', rows=final)
 
 if __name__ == '__main__':
